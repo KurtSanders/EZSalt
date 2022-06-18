@@ -1,10 +1,11 @@
 import java.text.SimpleDateFormat
 
 metadata {
-    definition (name: "EZSalt Tank Device", namespace: "sandeke", author: "Kurt Sanders") {
+    definition (name: "EZSalt Tank Device", namespace: "kurtsanders", author: "Kurt Sanders kurt@kurtsanders.com") {
         capability "Initialize"
         capability "Actuator"
         capability "Consumable" // consumableStatus - ENUM ["missing", "order", "maintenance_required", "good", "replace"]
+        capability "Switch"
 
         command "Disconnect"
 
@@ -114,10 +115,12 @@ def parse(String description) {
         break
     }
 
-    if (distance > state.NotificationPCT) {
+    if (distance > saltlevellowin) {
         consumableStatusValue = "good"
+        sendEvent(name: "switch", value: "off", displayed: true)
     } else {
         consumableStatusValue = "order"
+        sendEvent(name: "switch", value: "on", displayed: true)
     }
 
     state."${topic}" = "${payload}"
@@ -128,7 +131,7 @@ def parse(String description) {
     sendEvent(name: "consumableStatus", value: consumableStatusValue, displayed: true)
     sendEvent(name: "SaltLevelPct", value: SaltLevelPct, displayed: true)
 
-    img = "https://raw.githubusercontent.com/PrayerfulDrop/Hubitat/master/support/images/${img}"
+    img = "https://raw.githubusercontent.com/KurtSanders/EZSalt/main/images/${img}"
     html = "<style>img.salttankImage { max-width:80%;height:auto;}div#salttankImgWrapper {width=100%}div#salttankWrapper {font-size:13px;margin: 30px auto; text-align:center;}</style><div id='salttankWrapper'>"
     html += "<div id='salttankImgWrapper'><center><img src='${img}' class='saltankImage'></center></div>"
     html += "Salt Level: ${SaltLevelPct}%</div>"
